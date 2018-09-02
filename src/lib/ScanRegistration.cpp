@@ -419,12 +419,17 @@ void ScanRegistration::extractFeatures(const uint16_t& beginIdx)
 
     // down size less flat surface point cloud of current scan
     pcl::PointCloud<pcl::PointXYZI> surfPointsLessFlatScanDS;
+      pcl::PointXYZI tmp;
+      surfPointsLessFlatScanDS.push_back(tmp);
+
+//    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZI>);
+//
     pcl::VoxelGrid<pcl::PointXYZI> downSizeFilter;
     downSizeFilter.setInputCloud(surfPointsLessFlatScan);
     downSizeFilter.setLeafSize(_config.lessFlatFilterSize, _config.lessFlatFilterSize, _config.lessFlatFilterSize);
-    downSizeFilter.filter(surfPointsLessFlatScanDS);
-
-    _surfacePointsLessFlat += surfPointsLessFlatScanDS;
+//    downSizeFilter.filter(surfPointsLessFlatScanDS);
+//
+    _surfacePointsLessFlat += *surfPointsLessFlatScan;
   }
 }
 

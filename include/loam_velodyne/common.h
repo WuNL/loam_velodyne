@@ -39,7 +39,8 @@
 #include <pcl/point_types.h>
 
 
-namespace loam {
+namespace loam
+{
 
 /** \brief Construct a new point cloud message from the specified information and publish it via the given publisher.
  *
@@ -49,17 +50,18 @@ namespace loam {
  * @param stamp the time stamp of the cloud message
  * @param frameID the message frame ID
  */
-template <typename PointT>
-inline void publishCloudMsg(ros::Publisher& publisher,
-                            const pcl::PointCloud<PointT>& cloud,
-                            const ros::Time& stamp,
-                            std::string frameID) {
-  sensor_msgs::PointCloud2 msg;
-  pcl::toROSMsg(cloud, msg);
-  msg.header.stamp = stamp;
-  msg.header.frame_id = frameID;
-  publisher.publish(msg);
-}
+    template<typename PointT>
+    inline void publishCloudMsg (ros::Publisher &publisher,
+                                 const pcl::PointCloud<PointT> &cloud,
+                                 const ros::Time &stamp,
+                                 std::string frameID)
+    {
+        sensor_msgs::PointCloud2 msg;
+        pcl::toROSMsg(cloud, msg);
+        msg.header.stamp = stamp;
+        msg.header.frame_id = frameID;
+        publisher.publish(msg);
+    }
 
 } // end namespace loam
 

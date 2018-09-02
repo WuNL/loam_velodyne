@@ -18,6 +18,7 @@ Usage
 bag_test <comparison_bag.bag> <test_bag.bag>
 '''
 
+
 class TestBag(unittest.TestCase):
     def test_bags_match(self):
         # Load comparison bag
@@ -34,7 +35,7 @@ class TestBag(unittest.TestCase):
                 except:
                     pass
         # Wait for DUT to finish filling up the test bag (30 sec)
-        time.sleep(35.0-(datetime.datetime.today()-start_time).seconds)
+        time.sleep(35.0 - (datetime.datetime.today() - start_time).seconds)
         test_output_bag = sys.argv[2]
         while not os.path.isfile(test_output_bag):
             time.sleep(0.2)
@@ -46,6 +47,7 @@ class TestBag(unittest.TestCase):
                     for datum1, datum2 in izip(point_cloud2.read_points(comparison_msg), point_cloud2.read_points(msg)):
                         self.assertEquals(datum1, datum2, "{} != {}".format(datum1, datum2))
         os.remove(test_output_bag)
+
 
 if __name__ == '__main__':
     global start_time
