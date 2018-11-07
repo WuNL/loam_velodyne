@@ -13,7 +13,7 @@ int main (int argc, char **argv)
     ros::NodeHandle privateNode("~");
     ROS_INFO("2");
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr _laserCloudCornerLast(new pcl::PointCloud<pcl::PointXYZI>());
+    // pcl::PointCloud<pcl::PointXYZI>::Ptr _laserCloudCornerLast(new pcl::PointCloud<pcl::PointXYZI>());
 
     ROS_INFO("3");
 

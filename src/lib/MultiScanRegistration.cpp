@@ -168,6 +168,7 @@ namespace loam
                                          const ros::Time &scanTime)
     {
         size_t cloudSize = laserCloudIn.size();
+        ROS_INFO("%d",cloudSize);
 
         // reset internal buffers and set IMU start state based on current scan time
         reset(scanTime);
