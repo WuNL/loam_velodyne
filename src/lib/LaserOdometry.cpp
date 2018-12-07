@@ -186,7 +186,7 @@ namespace loam
     void LaserOdometry::transformToStart (const pcl::PointXYZI &pi, pcl::PointXYZI &po)
     {
         float s = 10 * (pi.intensity - int(pi.intensity));
-
+//        ROS_INFO("%f\n",s);
         po.x = pi.x - s * _transform.pos.x();
         po.y = pi.y - s * _transform.pos.y();
         po.z = pi.z - s * _transform.pos.z();
@@ -518,8 +518,10 @@ namespace loam
                     if (iterCount % 5 == 0)
                     {
                         pcl::removeNaNFromPointCloud(*_lastCornerCloud, *_lastCornerCloud, indices);
+                        //在上一时刻的角点点云中搜索最近的特征点
                         _lastCornerKDTree.nearestKSearch(pointSel, 1, pointSearchInd, pointSearchSqDis);
 
+                        //在临近的三条线中搜索次最近邻
                         int closestPointInd = - 1, minPointInd2 = - 1;
                         if (pointSearchSqDis[0] < 25)
                         {
@@ -561,7 +563,9 @@ namespace loam
                             }
                         }
 
+                        // 当前所有边特征点在上一时刻边特征点云中对应的最邻近点的索引
                         _pointSearchCornerInd1[i] = closestPointInd;
+                        // 当前所有边特征点在上一时刻边特征点云中对应的次邻近点的索引
                         _pointSearchCornerInd2[i] = minPointInd2;
                     }
 
@@ -569,17 +573,20 @@ namespace loam
                     {
                         tripod1 = _lastCornerCloud->points[_pointSearchCornerInd1[i]];
                         tripod2 = _lastCornerCloud->points[_pointSearchCornerInd2[i]];
-
+                        // 当前点云的点坐标
                         float x0 = pointSel.x;
                         float y0 = pointSel.y;
                         float z0 = pointSel.z;
+                        // 上一时刻最邻近点的点坐标
                         float x1 = tripod1.x;
                         float y1 = tripod1.y;
                         float z1 = tripod1.z;
+                        // 上一时刻次临近点的点坐标
                         float x2 = tripod2.x;
                         float y2 = tripod2.y;
                         float z2 = tripod2.z;
 
+                        // 文章中公式(2)的分子部分->分别作差并叉乘后的向量模长
                         float a012 = sqrt(((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
                                           * ((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
                                           + ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))
@@ -587,8 +594,10 @@ namespace loam
                                           + ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1))
                                             * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1)));
 
+                        // 文章中公式(2)分母部分 -> 两点间距离
                         float l12 = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
 
+                        // 向量[la；lb；lc] 为距离ld2分别对x0 y0 z0的偏导
                         float la = ((y1 - y2) * ((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
                                     + (z1 - z2) * ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))) / a012 / l12;
 
@@ -606,17 +615,21 @@ namespace loam
                         pointProj.y -= lb * ld2;
                         pointProj.z -= lc * ld2;
 
+                        // 阻尼因子
                         float s = 1;
                         if (iterCount >= 5)
                         {
+                            // 点到直线距离越小阻尼因子越大
                             s = 1 - 1.8f * fabs(ld2);
                         }
 
+                        // 每个特征点对应的Jaccobian矩阵的三个元素
                         coeff.x = s * la;
                         coeff.y = s * lb;
                         coeff.z = s * lc;
                         coeff.intensity = s * ld2;
 
+                        // 满足阈值(ld2 < 0.5)，将特征点插入
                         if (s > 0.1 && ld2 != 0)
                         {
                             _laserCloudOri->push_back(_cornerPointsSharp->points[i]);
@@ -737,7 +750,7 @@ namespace loam
                     }
                 }
 
-                int pointSelNum = _laserCloudOri->points.size();
+                int pointSelNum = static_cast<int>(_laserCloudOri->points.size());
                 if (pointSelNum < 10)
                 {
                     continue;
